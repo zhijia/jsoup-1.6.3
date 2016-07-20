@@ -33,17 +33,28 @@ public class HtmlToPlainText {
         Validate.isTrue(args.length == 1, "usage: supply url to fetch");
         String html = "";
         
+        /* time profiling variables */
+        long start, duration; 
+        
+        /* load HTML file */
+        StringBuilder sb = new StringBuilder();
+                
+        start = System.currentTimeMillis();
         BufferedReader in = null;
         try{
             in = new BufferedReader(new FileReader(args[0]));
             String line = "";
             while((line = in.readLine()) != null)
-            	html += line;
+            	 sb.append(line);
         }catch(IOException e){
             e.printStackTrace();
         }finally{
                 in.close();
         }
+        html = sb.toString();
+        duration = System.currentTimeMillis() - start;
+        //System.out.println("loading html: " + duration + " ms");
+
 
         /* measure time */
         Document doc = null;
@@ -56,15 +67,14 @@ public class HtmlToPlainText {
         int runs = RUNS;
         float total = 0;
         while(runs-- > 0) {
-            long start = System.currentTimeMillis();
+            start = System.currentTimeMillis();
 	        doc = Jsoup.parse(html);
-            long duration = System.currentTimeMillis() - start;
+            duration = System.currentTimeMillis() - start;
             total += duration;
         }
         System.out.println("total: " + total/RUNS + " ms");
 
-        FileWriter file = new FileWriter("test/doc.html");
-        PrintWriter out = new PrintWriter(file);
+        PrintWriter out = new PrintWriter("test/output.html");
         out.println(doc);
         out.close();
         
